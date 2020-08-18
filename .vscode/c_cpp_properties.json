@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "defines": [
+        "MOD_ID=\"SongLoader\"",
+        "VERSION=\"0.1.0\"",
+        "__GNUC__",
+        "__aarch64__",
+        "ID=\"SongLoader\""
+      ],
+      "includePath": [
+        "${workspaceFolder}/**",
+        "d:/Program Files/Unity/2019.3.2f1/Editor/Data/il2cpp/libil2cpp",
+        "d:/Users/RedBrumbler/Documents/GitHub/QuestModsRed/android-ndk-r21-windows-x86_64/android-ndk-r21/**",
+        "${workspaceFolder}/shared",
+        "${workspaceFolder}/extern",
+        "${workspaceFolder}/extern/codegen/include",
+        "${workspaceFolder}/extern/beatsaber-hook"
+      ],
+      "name": "Quest",
+      "cStandard": "c11",
+      "cppStandard": "c++20",
+      "intelliSenseMode": "clang-x64"
+    }
+  ],
+  "version": 4
+}

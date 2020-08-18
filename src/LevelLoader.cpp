@@ -25,7 +25,9 @@ namespace SongLoader
 		hash += to_utf8(csstrtostr(customPreviewBeatmapLevel->levelID));
 		hash.erase(0, 13);
 		getLogger().info("Song Hash: %s", hash.c_str());
-		if (customPreviewBeatmapLevel->previewAudioClip == nullptr) customPreviewBeatmapLevel->previewAudioClip = (UnityEngine::AudioClip*)SongLoader::Loader::soundLoader.find(hash)->second->getClip();
+		
+
+		if (customPreviewBeatmapLevel->previewAudioClip == nullptr) customPreviewBeatmapLevel->previewAudioClip = LoadAudioClip(customPreviewBeatmapLevel);//(UnityEngine::AudioClip*)SongLoader::Loader::soundLoader.find(hash)->second->getClip();
 		UnityEngine::AudioClip* previewAudioClip = customPreviewBeatmapLevel->previewAudioClip;
 		getLogger().info("Audio Clip should be loaded, isNull?: %d", previewAudioClip == nullptr);
 		
@@ -131,4 +133,42 @@ namespace SongLoader
 		getLogger().info("End LoadBeatmapData, was null");
 		return nullptr;
     }
+
+	UnityEngine::AudioClip* LevelLoader::LoadAudioClip(GlobalNamespace::CustomPreviewBeatmapLevel* customPreviewBeatmapLevel)
+	{
+		getLogger().info("Attempting to decode audio file");
+		short* data;
+		int sampleRate;
+		int channels;
+		std::string filename = to_utf8(csstrtostr(customPreviewBeatmapLevel->customLevelPath)) + "/" + to_utf8(csstrtostr(customPreviewBeatmapLevel->standardLevelInfoSaveData->songFilename));
+
+		getLogger().info("Sound File filename: %s", filename.c_str());
+		int dataLength = stb_vorbis_decode_filename(filename.c_str(), &channels, &sampleRate, &data);
+		if(dataLength > 0)
+		{
+			getLogger().info("Sound file decoded into data");
+			Array<float>* samples = reinterpret_cast<Array<float>*>(il2cpp_functions::array_new(il2cpp_utils::GetClassFromName("System", "Single"), dataLength));
+			for (int i = 0; i < dataLength; i++)
+			{
+				short sample = data[i];
+				samples->values[i] = (float) ((double) sample) / SHRT_MAX;
+			}
+			free(data);
+			getLogger().info("channels: %d", channels);
+			getLogger().info("sampleRate: %d", sampleRate);
+			getLogger().info("Data length: %d", dataLength);
+
+			getLogger().info("Sound file decoded into C# float array");
+			UnityEngine::AudioClip* clip = UnityEngine::AudioClip::Create(customPreviewBeatmapLevel->customLevelPath, dataLength, channels, sampleRate, false);
+			getLogger().info("clip created");
+			clip->SetData(samples, 0);
+			getLogger().info("Data set on clip");
+			return clip;
+		}
+		else
+		{
+			getLogger().error("Error loading audio file with error code %d, returning nullptr", dataLength);
+			return nullptr;
+		}
+	}
 }

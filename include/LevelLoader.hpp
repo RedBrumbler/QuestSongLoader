@@ -35,6 +35,8 @@
 #include "System/Threading/CancellationTokenSource.hpp"
 #include "System/Threading/Tasks/Task_1.hpp"
 #include "System/Runtime/CompilerServices/TaskAwaiter_1.hpp"
+#include "vorbisLib/stb_vorbis.h"
+
 namespace SongLoader
 {
     class LevelLoader
@@ -64,7 +66,7 @@ namespace SongLoader
 
             static GlobalNamespace::BeatmapData* LoadBeatmapDataBeatmapData(std::string customLevelPath, std::string difficultyFileName, GlobalNamespace::StandardLevelInfoSaveData* standardLevelInfoSaveData);
             
-            //static UnityEngine::AudioClip* LoadAudioClip(GlobalNamespace::CustomPreviewBeatmapLevel* customPreviewBeatmapLevel);
+            static UnityEngine::AudioClip* LoadAudioClip(GlobalNamespace::CustomPreviewBeatmapLevel* customPreviewBeatmapLevel);
             
             static inline GlobalNamespace::BeatmapDataLoader* beatmapLevelLoader = nullptr;
 

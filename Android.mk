@@ -37,7 +37,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := bs-utils
 LOCAL_EXPORT_C_INCLUDES := extern/bs-utils
-LOCAL_SRC_FILES := extern/libbs-utils_0_2_1.so
+LOCAL_SRC_FILES := extern/libbs-utils_0_2_3.so
 LOCAL_EXPORT_C_FLAGS := -Wno-inaccessible-base
 include $(PREBUILT_SHARED_LIBRARY)
 # Creating prebuilt for dependency: codegen - version: 0.1.6
@@ -58,6 +58,7 @@ LOCAL_MODULE := SongLoader
 LOCAL_SRC_FILES += $(filter-out src/pinkutils.cpp, $(call rwildcard,src/,*.cpp))
 LOCAL_SRC_FILES += $(call rwildcard,extern/beatsaber-hook/src/inline-hook,*.cpp)
 LOCAL_SRC_FILES += $(call rwildcard,extern/beatsaber-hook/src/inline-hook,*.c)
+LOCAL_SRC_FILES += $(call rwildcard,extern/vorbisLib,*.c)
 LOCAL_SHARED_LIBRARIES += modloader
 LOCAL_SHARED_LIBRARIES += beatsaber-hook
 LOCAL_SHARED_LIBRARIES += bs-utils
