@@ -48,15 +48,15 @@ namespace SongLoader
 		difficultyBeatmapSets = array;
         UnityEngine::AudioClip* audioClip = previewAudioClip;//(previewAudioClip == nullptr) ? (UnityEngine::AudioClip*)audioLoader->getClip() : previewAudioClip;
 		GlobalNamespace::BeatmapLevelData* result;
-		//if (audioClip == nullptr)
-		//{
-		//	getLogger().info("AudioClip was nullptr, returning nullptr");
-		//	result = nullptr;
-		//}
-		//else
-		//{
+		if (audioClip == nullptr)
+		{
+			getLogger().info("AudioClip was nullptr, returning nullptr");
+			result = nullptr;
+		}
+		else
+		{
 			result = GlobalNamespace::BeatmapLevelData::New_ctor(audioClip, difficultyBeatmapSets);
-		//}
+		}
 		getLogger().info("End LoadBeatmapLevelData");
 		return result;
     }
@@ -126,9 +126,10 @@ namespace SongLoader
 		if (fileExists)
 		{
 		    std::string json = readfile(path);
-            if (LevelLoader::beatmapLevelLoader == nullptr) LevelLoader::beatmapLevelLoader = GlobalNamespace::BeatmapDataLoader::New_ctor();//(GlobalNamespace::BeatmapDataLoader*)Utils::Unity::GetFirstObjectOfType(il2cpp_utils::GetClassFromName("", "BeatmapDataLoader"));
-		    getLogger().info("End LoadBeatmapData");
-			return beatmapLevelLoader->GetBeatmapDataFromJson(il2cpp_utils::createcsstr(json), standardLevelInfoSaveData->beatsPerMinute, standardLevelInfoSaveData->shuffle, standardLevelInfoSaveData->shufflePeriod);
+			GlobalNamespace::BeatmapDataLoader* beatmapLevelLoader = GlobalNamespace::BeatmapDataLoader::New_ctor();
+			beatmapData = beatmapLevelLoader->GetBeatmapDataFromJson(il2cpp_utils::createcsstr(json), standardLevelInfoSaveData->beatsPerMinute, standardLevelInfoSaveData->shuffle, standardLevelInfoSaveData->shufflePeriod);
+			getLogger().info("End LoadBeatmapData");
+			return beatmapData;
 		}
 		getLogger().info("End LoadBeatmapData, was null");
 		return nullptr;

@@ -68,7 +68,7 @@ namespace SongLoader
             
             static UnityEngine::AudioClip* LoadAudioClip(GlobalNamespace::CustomPreviewBeatmapLevel* customPreviewBeatmapLevel);
             
-            static inline GlobalNamespace::BeatmapDataLoader* beatmapLevelLoader = nullptr;
+            
 
             
     };

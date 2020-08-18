@@ -83,7 +83,7 @@ namespace SongLoader
                 previewCache.insert_or_assign(hash, customLevel);
             }
 
-            LoadSound(string_format(FILE_PATH_FORMAT, dir.c_str(), to_utf8(csstrtostr(saveData->songFilename)).c_str()), hash);
+            //LoadSound(string_format(FILE_PATH_FORMAT, dir.c_str(), to_utf8(csstrtostr(saveData->songFilename)).c_str()), hash);
         }
         
         for (auto level : previewBeatMaps)

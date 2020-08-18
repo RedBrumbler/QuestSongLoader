@@ -127,7 +127,6 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
         {
             getLogger().error("Did not find any song folders");
         }
-        
     }
 
     SceneManager_ActiveSceneChanged(previousActiveScene, nextActiveScene);
