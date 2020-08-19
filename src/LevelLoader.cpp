@@ -148,16 +148,20 @@ namespace SongLoader
 		if(dataLength > 0)
 		{
 			getLogger().info("Sound file decoded into data");
-			Array<float>* samples = reinterpret_cast<Array<float>*>(il2cpp_functions::array_new(il2cpp_utils::GetClassFromName("System", "Single"), dataLength));
-			for (int i = 0; i < dataLength; i++)
+			int trueLength = dataLength * channels;
+			
+			Array<float>* samples = reinterpret_cast<Array<float>*>(il2cpp_functions::array_new(il2cpp_utils::GetClassFromName("System", "Single"), trueLength));
+			
+			for (int i = 0; i < trueLength; i++)
 			{
 				short sample = data[i];
 				samples->values[i] = (float) ((double) sample) / SHRT_MAX;
 			}
+
 			free(data);
 			getLogger().info("channels: %d", channels);
 			getLogger().info("sampleRate: %d", sampleRate);
-			getLogger().info("Data length: %d", dataLength);
+			getLogger().info("amount of samples: %d, true data length: %d", dataLength, trueLength);
 
 			getLogger().info("Sound file decoded into C# float array");
 			UnityEngine::AudioClip* clip = UnityEngine::AudioClip::Create(customPreviewBeatmapLevel->customLevelPath, dataLength, channels, sampleRate, false);
