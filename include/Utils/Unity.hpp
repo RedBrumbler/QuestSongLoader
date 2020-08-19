@@ -8,6 +8,7 @@
 #include "../extern/beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 #include "../extern/beatsaber-hook/shared/utils/typedefs.h"
 #include "../extern/beatsaber-hook/shared/config/config-utils.hpp"
+#include "UnityEngine/Texture2D.hpp"
 
 namespace Utils
 {

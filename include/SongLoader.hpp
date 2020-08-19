@@ -56,7 +56,14 @@
 #include "Utils/Hashing.hpp"
 #include "Utils/Audio.hpp"
 #include <map>
-
+#include "UnityEngine/ImageConversion.hpp"
+#include "UnityEngine/Texture2D.hpp"
+#include "UnityEngine/Sprite.hpp"
+#include "UnityEngine/Rect.hpp"
+#include "UnityEngine/Vector2.hpp"
+#include "UnityEngine/Vector4.hpp"
+#include "UnityEngine/SpriteMeshType.hpp"
+#include "Utils/Texture.hpp" 
 #define SONG_PATH_FORMAT "/sdcard/BeatSaberSongs/%s"
 #define FILE_PATH_FORMAT "/sdcard/BeatSaberSongs/%s/%s"
 

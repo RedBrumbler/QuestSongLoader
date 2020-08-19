@@ -104,8 +104,79 @@ namespace SongLoader
         GlobalNamespace::BeatmapCharacteristicSO* lawless = UnityEngine::ScriptableObject::CreateInstance<GlobalNamespace::BeatmapCharacteristicSO*>();
         GlobalNamespace::BeatmapCharacteristicSO* lightshow = UnityEngine::ScriptableObject::CreateInstance<GlobalNamespace::BeatmapCharacteristicSO*>();
 
+        /*
+        std::vector<char> lawlessAsChar = readbytes("/sdcard/Pictures/Lawless.png");
+        std::vector<uint8_t> lawlessBytesVector;
+        
+        for (auto c : lawlessAsChar)
+        {
+            lawlessBytesVector.push_back(c);
+        }
+
+        Array<uint8_t>* lawlessBytes = il2cpp_utils::vectorToArray(lawlessBytesVector);
+        
+        UnityEngine::Texture2D* lawlessTexture = UnityEngine::Texture2D::New_ctor(500, 500);
+        UnityEngine::ImageConversion::LoadImage(lawlessTexture, lawlessBytes, false);
+        UnityEngine::Rect lawlessRect = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_rect();
+        UnityEngine::Vector2 lawlessPivot = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pivot(); 
+        float lawlessPixelsPerUnit = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pixelsPerUnit();
+        uint lawlessExtrude = 1;
+        UnityEngine::SpriteMeshType lawlessMeshType = 1;
+        UnityEngine::Sprite* lawlessSprite = UnityEngine::Sprite::Create(lawlessTexture, lawlessRect, lawlessPivot, lawlessPixelsPerUnit, lawlessExtrude, lawlessMeshType, UnityEngine::Vector4::get_zero(), true);
+        
+        std::vector<char> lightshowAsChar = readbytes("/sdcard/Pictures/Lightshow.png");
+        std::vector<uint8_t> lightshowBytesVector;
+        
+        for (auto c : lightshowAsChar)
+        {
+            lightshowBytesVector.push_back(c);
+        }
+
+        Array<uint8_t>* lightshowBytes = il2cpp_utils::vectorToArray(lightshowBytesVector);
+
+        UnityEngine::Texture2D* lightshowTexture = UnityEngine::Texture2D::New_ctor(512, 512);
+        UnityEngine::ImageConversion::LoadImage(lightshowTexture, lightshowBytes, false);
+        UnityEngine::Rect lightshowRect = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_rect();
+        UnityEngine::Vector2 lightshowPivot = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pivot(); 
+        float lightshowPixelsPerUnit = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pixelsPerUnit();
+        uint lightshowExtrude = 1;
+        UnityEngine::SpriteMeshType lightshowMeshType = 1;
+        UnityEngine::Sprite* lightshowSprite = UnityEngine::Sprite::Create(lightshowTexture, lightshowRect, lightshowPivot, lightshowPixelsPerUnit, lightshowExtrude, lightshowMeshType, UnityEngine::Vector4::get_zero(), true);
+        
+        */
         lawless->serializedName = il2cpp_utils::createcsstr("Lawless");
         lightshow->serializedName = il2cpp_utils::createcsstr("Lightshow");
+        /*
+        lawless->icon = lawlessSprite;
+        lightshow->icon = lightshowSprite;
+        */
+        
+        Utils::Texture("sdcard/Pictures/Lawless.png", [&](UnityEngine::Texture* texture)
+        {
+            UnityEngine::Texture2D* useableTexture = UnityEngine::Texture2D::CreateExternalTexture(texture->get_width(), texture->get_height(), UnityEngine::TextureFormat::ARGB32, false, false, texture->GetNativeTexturePtr());
+
+            UnityEngine::Rect rect = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_rect();
+            UnityEngine::Vector2 pivot = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pivot(); 
+            float pixelsPerUnit = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pixelsPerUnit();
+            uint extrude = 1;
+            UnityEngine::SpriteMeshType meshType = 1;
+            UnityEngine::Vector4 border = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_border();
+            lawless->icon = UnityEngine::Sprite::Create(useableTexture, rect, pivot, pixelsPerUnit, extrude, meshType, border, true);
+        });
+
+        Utils::Texture("sdcard/Pictures/Lightshow.png", [&](UnityEngine::Texture* texture)
+        {
+            UnityEngine::Texture2D* useableTexture = UnityEngine::Texture2D::CreateExternalTexture(texture->get_width(), texture->get_height(), UnityEngine::TextureFormat::ARGB32, false, false, texture->GetNativeTexturePtr());
+
+            UnityEngine::Rect rect = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_rect();
+            UnityEngine::Vector2 pivot = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pivot(); 
+            float pixelsPerUnit = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pixelsPerUnit();
+            uint extrude = 1;
+            UnityEngine::SpriteMeshType meshType = 1;
+            UnityEngine::Vector4 border = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_border();
+            lightshow->icon = UnityEngine::Sprite::Create(useableTexture, rect, pivot, pixelsPerUnit, extrude, meshType, border, true);
+        });
+        
         int originalLength = tempCharCollection->get_beatmapCharacteristics()->Length();
         Array<GlobalNamespace::BeatmapCharacteristicSO*>* editedArray = reinterpret_cast<Array<GlobalNamespace::BeatmapCharacteristicSO*>*>(il2cpp_functions::array_new(il2cpp_utils::GetClassFromName("", "BeatmapCharacteristicSO"), originalLength + 2));
 

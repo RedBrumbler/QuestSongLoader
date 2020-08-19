@@ -507,6 +507,7 @@ extern "C" void setup(ModInfo& info) {
     Utils::Hashing::OnLoad(modInfo);
     Utils::File::OnLoad(modInfo);
     Utils::Audio::OnLoad(modInfo);
+    Utils::Texture::OnLoad(modInfo);
     getLogger().info("Modloader name: %s", Modloader::getInfo().name.c_str());
 }
 
