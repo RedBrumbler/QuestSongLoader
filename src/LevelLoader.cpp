@@ -79,7 +79,8 @@ namespace SongLoader
     {
 		getLogger().info("Begin LoadDifficultyBeatmapSet");
         GlobalNamespace::BeatmapCharacteristicCollectionSO* beatmapCharacteristicCollection = (GlobalNamespace::BeatmapCharacteristicCollectionSO*)CRASH_UNLESS(Utils::Unity::GetFirstObjectOfType(il2cpp_utils::GetClassFromName("", "BeatmapCharacteristicCollectionSO")));
-        GlobalNamespace::BeatmapCharacteristicSO* beatmapCharacteristicBySerializedName = beatmapCharacteristicCollection->GetBeatmapCharacteristicBySerializedName(difficultyBeatmapSetSaveData->beatmapCharacteristicName);
+        getLogger().info("Requested resolve for characteristic: %s", to_utf8(csstrtostr(difficultyBeatmapSetSaveData->beatmapCharacteristicName)).c_str());
+		GlobalNamespace::BeatmapCharacteristicSO* beatmapCharacteristicBySerializedName = beatmapCharacteristicCollection->GetBeatmapCharacteristicBySerializedName(difficultyBeatmapSetSaveData->beatmapCharacteristicName);
 		
         Array<GlobalNamespace::CustomDifficultyBeatmap*>* difficultyBeatmaps = reinterpret_cast<Array<GlobalNamespace::CustomDifficultyBeatmap*>*>(il2cpp_functions::array_new(il2cpp_utils::GetClassFromName("", "CustomDifficultyBeatmap"), difficultyBeatmapSetSaveData->difficultyBeatmaps->Length()));
 		GlobalNamespace::CustomDifficultyBeatmapSet* difficultyBeatmapSet = GlobalNamespace::CustomDifficultyBeatmapSet::New_ctor(beatmapCharacteristicBySerializedName);
@@ -149,7 +150,7 @@ namespace SongLoader
 		{
 			getLogger().info("Sound file decoded into data");
 			int trueLength = dataLength * channels;
-			
+
 			Array<float>* samples = reinterpret_cast<Array<float>*>(il2cpp_functions::array_new(il2cpp_utils::GetClassFromName("System", "Single"), trueLength));
 			
 			for (int i = 0; i < trueLength; i++)

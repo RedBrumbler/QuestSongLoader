@@ -140,7 +140,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
 }
 
 MAKE_HOOK_OFFSETLESS(LevelFilteringNavigationController_Setup, void, Il2CppObject *self, bool hideIfOneOrNoPacks, bool enableCustomLevels, Il2CppObject *annotatedBeatmapLevelCollectionToBeSelectedAfterPresent) {
-    LevelFilteringNavigationController_Setup(self, hideIfOneOrNoPacks, false, annotatedBeatmapLevelCollectionToBeSelectedAfterPresent);
+    LevelFilteringNavigationController_Setup(self, hideIfOneOrNoPacks, true, annotatedBeatmapLevelCollectionToBeSelectedAfterPresent);
 }
 
 MAKE_HOOK_OFFSETLESS(BeatmapLevelsModel_Start, void, GlobalNamespace::BeatmapLevelsModel *self)
@@ -172,7 +172,7 @@ MAKE_HOOK_OFFSETLESS(LevelFilteringNavigationController_InitializeIfNeeded, void
     GlobalNamespace::TabBarViewController* tabBarViewController = self->tabBarViewController;
     LevelFilteringNavigationController_InitializeIfNeeded(self);
     if (!SongLoader::Loader::packAdded) return;
-    return;
+    
     GlobalNamespace::BeatmapLevelsModel* beatMapLevelsModel = (GlobalNamespace::BeatmapLevelsModel*)Utils::Unity::GetFirstObjectOfType(il2cpp_utils::GetClassFromName("", "BeatmapLevelsModel"));
     int numberOfPacks = beatMapLevelsModel->customLevelPackCollection->get_beatmapLevelPacks()->Length();
     Array<GlobalNamespace::IAnnotatedBeatmapLevelCollection*>* levelCollections = reinterpret_cast<Array<GlobalNamespace::IAnnotatedBeatmapLevelCollection*>*>(il2cpp_functions::array_new(il2cpp_utils::GetClassFromName("", "IAnnotatedBeatmapLevelCollection"), numberOfPacks));
@@ -181,9 +181,8 @@ MAKE_HOOK_OFFSETLESS(LevelFilteringNavigationController_InitializeIfNeeded, void
     
     for (int i = 0; i < numberOfPacks; i++)//(auto var : customPackCollection->beatmapLevelPacks)
     {
-        levelCollections->values[i] = /*(GlobalNamespace::IAnnotatedBeatmapLevelCollection*)*/(GlobalNamespace::IBeatmapLevelPack*)beatMapLevelsModel->customLevelPackCollection->get_beatmapLevelPacks()->values[i];
+        levelCollections->values[i] = beatMapLevelsModel->customLevelPackCollection->get_beatmapLevelPacks()->values[i];
     }
-
 
     self->customLevelsTabBarData->annotatedBeatmapLevelCollections = levelCollections;
 }
@@ -394,17 +393,18 @@ MAKE_HOOK_OFFSETLESS(AdditionalContentModel_GetLevelEntitlementStatusAsync, Il2C
 MAKE_HOOK_OFFSETLESS(BeatmapLevelsModel_GetBeatmapLevelAsync, Il2CppObject*, GlobalNamespace::BeatmapLevelsModel* self, Il2CppString* levelID, System::Threading::CancellationToken* token)
 {
     getLogger().info("Called getbeatmaplevelAsync!");
-    if (!self->loadedBeatmapLevels->IsInCache(levelID))// TODO add check to see if the level is even custom, probably make array of strings in songloader class that holds all custom level ID's
+    if (isCustomSong(to_utf8(csstrtostr(levelID))) && !self->loadedBeatmapLevels->IsInCache(levelID))
     {
         //if not in cache, add to cache
-        GlobalNamespace::CustomPreviewBeatmapLevel* customLevel = (GlobalNamespace::CustomPreviewBeatmapLevel*)self->loadedPreviewBeatmapLevels->get_Item(levelID);
+        getLogger().info("Getting custom level from loadedpreviewbeatmaplevels");
+        std::string customLevelHash = to_utf8(csstrtostr(levelID));
+        customLevelHash.erase(0, 13);
+
+        GlobalNamespace::CustomPreviewBeatmapLevel* customLevel = reinterpret_cast<GlobalNamespace::CustomPreviewBeatmapLevel*>(SongLoader::Loader::previewCache.find(customLevelHash)->second);//self->loadedPreviewBeatmapLevels->get_Item(levelID));
         getLogger().info("Level %s was not in cache, testing if custom", to_utf8(csstrtostr(customLevel->songName)).c_str());
-        if (isCustomSong(to_utf8(csstrtostr(customLevel->levelID))))
-        {
-            GlobalNamespace::CustomBeatmapLevel* level = SongLoader::LevelLoader::LoadCustomBeatmapLevel(customLevel);
+        GlobalNamespace::CustomBeatmapLevel* level = SongLoader::LevelLoader::LoadCustomBeatmapLevel(customLevel);
         
-            self->loadedBeatmapLevels->PutToCache(levelID, reinterpret_cast<GlobalNamespace::IBeatmapLevel*>(level));
-        }
+        self->loadedBeatmapLevels->PutToCache(levelID, reinterpret_cast<GlobalNamespace::IBeatmapLevel*>(level));
     }
 
     return BeatmapLevelsModel_GetBeatmapLevelAsync(self, levelID, token);

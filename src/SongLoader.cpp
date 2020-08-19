@@ -66,12 +66,13 @@ namespace SongLoader
         //Load Customs
         std::vector<std::string> songFolders;
         Utils::File::GetDirectoriesInDir(customSongPath, songFolders);
+        SetupCharacteristics();
 
         int i = 0;
         for (auto dir : songFolders)
         {
             i++;
-            GlobalNamespace::StandardLevelInfoSaveData* saveData = GetStandardLevelInfoSaveData(string_format(FILE_PATH_FORMAT, dir.c_str(), "Info.dat"));
+            GlobalNamespace::StandardLevelInfoSaveData* saveData = GetStandardLevelInfoSaveData(string_format(SONG_PATH_FORMAT, dir.c_str()));
             std::string hash;
             GlobalNamespace::CustomPreviewBeatmapLevel* customLevel = LoadSong(saveData, string_format(SONG_PATH_FORMAT, dir.c_str()), hash);
             getLogger().info("Pushing Back level");
@@ -82,8 +83,6 @@ namespace SongLoader
             {
                 previewCache.insert_or_assign(hash, customLevel);
             }
-
-            //LoadSound(string_format(FILE_PATH_FORMAT, dir.c_str(), to_utf8(csstrtostr(saveData->songFilename)).c_str()), hash);
         }
         
         for (auto level : previewBeatMaps)
@@ -92,6 +91,32 @@ namespace SongLoader
         }
         CreatePack();
         AddPack();
+    }
+
+    void Loader::SetupCharacteristics()
+    {
+        //get base game characteristics
+        //create my own 2 characteristics
+        //put all together in an array
+        //use that to get the characteristics at runtime
+
+        GlobalNamespace::BeatmapCharacteristicCollectionSO* tempCharCollection = (GlobalNamespace::BeatmapCharacteristicCollectionSO*)CRASH_UNLESS(Utils::Unity::GetFirstObjectOfType(il2cpp_utils::GetClassFromName("", "BeatmapCharacteristicCollectionSO")));
+        GlobalNamespace::BeatmapCharacteristicSO* lawless = UnityEngine::ScriptableObject::CreateInstance<GlobalNamespace::BeatmapCharacteristicSO*>();
+        GlobalNamespace::BeatmapCharacteristicSO* lightshow = UnityEngine::ScriptableObject::CreateInstance<GlobalNamespace::BeatmapCharacteristicSO*>();
+
+        lawless->serializedName = il2cpp_utils::createcsstr("Lawless");
+        lightshow->serializedName = il2cpp_utils::createcsstr("Lightshow");
+        int originalLength = tempCharCollection->get_beatmapCharacteristics()->Length();
+        Array<GlobalNamespace::BeatmapCharacteristicSO*>* editedArray = reinterpret_cast<Array<GlobalNamespace::BeatmapCharacteristicSO*>*>(il2cpp_functions::array_new(il2cpp_utils::GetClassFromName("", "BeatmapCharacteristicSO"), originalLength + 2));
+
+        for (int i = 0; i < originalLength; i++)
+        {
+            editedArray->values[i] = tempCharCollection->get_beatmapCharacteristics()->values[i];
+        }
+        editedArray->values[originalLength] = lawless;
+        editedArray->values[originalLength + 1] = lightshow;
+
+        tempCharCollection->beatmapCharacteristics = editedArray;
     }
 
     void Loader::LoadSound(std::string filePath, std::string hash)
@@ -127,6 +152,7 @@ namespace SongLoader
         int i = 0;
         for (auto level : levels)
         {
+            //beatmapLevelsModel->loadedPreviewBeatmapLevels->Add(level->get_levelID(), level);
             customlevels->values[i] = level;
             alwaysOwnedContentContainer->alwaysOwnedBeatmapLevelIds->Add(level->get_levelID());
             i++;
@@ -166,7 +192,7 @@ namespace SongLoader
             getLogger().error("beatmapLevelsModel was null, error in creating custom level pack");
             return;
         }
-
+        /*
         getLogger().info("Getting original length");
         int arrayLength = beatmapLevelsModel->ostAndExtrasPackCollection->get_beatmapLevelPacks()->Length();
         
@@ -186,13 +212,13 @@ namespace SongLoader
 
         getLogger().info("Adding custom pack");
         ost->beatmapLevelPacks->values[arrayLength] = Loader::customPackCollection->beatmapLevelPacks->values[0];
-
+        */
         getLogger().info("setting customlevelpackcollection");
         beatmapLevelsModel->customLevelPackCollection = reinterpret_cast<GlobalNamespace::IBeatmapLevelPackCollection*>(Loader::customPackCollection);
-        
+        /*
         getLogger().info("setting ost back");
         beatmapLevelsModel->ostAndExtrasPackCollection = ost;
-
+        */
         getLogger().info("run some methods");
         beatmapLevelsModel->UpdateAllLoadedBeatmapLevelPacks();
         beatmapLevelsModel->UpdateLoadedPreviewLevels();
@@ -206,9 +232,9 @@ namespace SongLoader
 
         getLogger().info("LoadSong Called, loading %s", songPath.c_str());
         GlobalNamespace::CustomPreviewBeatmapLevel* result;
-
+        
         getLogger().info("Getting Hash");
-        hash = Utils::Hashing::GetCustomLevelHash(saveData, songPath + "/Info.dat");
+        hash = Utils::Hashing::GetCustomLevelHash(saveData, songPath);
         getLogger().info("Got Hash");
 
         Il2CppString* levelID = il2cpp_utils::createcsstr("custom_level_" + hash);
@@ -216,14 +242,14 @@ namespace SongLoader
         Il2CppString* songSubName = saveData->get_songSubName();
         Il2CppString* songAuthorName = saveData->get_songAuthorName();
         Il2CppString* levelAuthorName = saveData->get_levelAuthorName();
-
+        getLogger().info("Set strings");
         float beatsPerMinute = saveData->get_beatsPerMinute();
         float songTimeOffset = saveData->get_songTimeOffset();
         float shuffle = saveData->get_shuffle();
         float shufflePeriod = saveData->get_shufflePeriod();
         float previewStartTime = saveData->get_previewStartTime();
         float previewDuration = saveData->get_previewDuration();
-
+        getLogger().info("Set Floats");
         getLogger().info("Getting environmentScene info");
         GlobalNamespace::EnvironmentInfoSO* environmentSceneInfo = LoadEnvironmentInfo(saveData->get_environmentName(), false);
         GlobalNamespace::EnvironmentInfoSO* allDirectionEnvironmentInfo = LoadEnvironmentInfo(saveData->get_allDirectionsEnvironmentName(), true);
@@ -233,7 +259,16 @@ namespace SongLoader
 
         Loader::beatmapCharacteristicCollection = (GlobalNamespace::BeatmapCharacteristicCollectionSO*)CRASH_UNLESS(Utils::Unity::GetFirstObjectOfType(il2cpp_utils::GetClassFromName("", "BeatmapCharacteristicCollectionSO")));
         
-        
+        getLogger().info("All Possible BeatmapCharacteristic names are: ");
+        getLogger().info("%d", beatmapCharacteristicCollection->get_beatmapCharacteristics()->Length());
+        for (int b = 0; b < beatmapCharacteristicCollection->get_beatmapCharacteristics()->Length(); b++)
+        {
+            Il2CppString* csName = beatmapCharacteristicCollection->get_beatmapCharacteristics()->values[b]->get_serializedName();
+            std::string name = to_utf8(csstrtostr(csName));
+            getLogger().info("%s", name.c_str());
+        }
+
+        getLogger().info("End of characteristics");
         for (int i = 0; i < saveData->get_difficultyBeatmapSets()->Length(); i++)
         {
             GlobalNamespace::StandardLevelInfoSaveData::DifficultyBeatmapSet* difficultyBeatmapSet = saveData->get_difficultyBeatmapSets()->values[i];
@@ -309,9 +344,12 @@ namespace SongLoader
     GlobalNamespace::StandardLevelInfoSaveData* Loader::GetStandardLevelInfoSaveData(std::string path)
     {
         getLogger().info("GetStandardLevelInfoSaveData Called");
+        std::string newPath = path + "/Info.dat";
+        if (!fileexists(path)) newPath = path + "info.dat";
 
-        std::string info = readfile(path);
-
+        getLogger().info("Getting info.dat info from %s", newPath.c_str());
+        std::string info = readfile(newPath);
+        
         return GlobalNamespace::StandardLevelInfoSaveData::DeserializeFromJSONString(il2cpp_utils::createcsstr(info));
     }
 

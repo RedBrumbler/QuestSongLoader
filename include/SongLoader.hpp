@@ -46,6 +46,7 @@
 #include "GlobalNamespace/AlwaysOwnedContentContainerSO.hpp"
 #include "UnityEngine/ScriptableObject.hpp"
 #include "System/Collections/Generic/HashSet_1.hpp"
+#include "System/Collections/Generic/Dictionary_2.hpp"
 
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/Texture2D.hpp"
@@ -92,8 +93,15 @@ namespace SongLoader
             /// @param difficulty output difficulty variable
             /// @return bool succesfully found diff
             static bool BeatmapDifficultyFromSerializedName(std::string name, GlobalNamespace::BeatmapDifficulty &difficulty);
+
+            
+            static GlobalNamespace::BeatmapCharacteristicSO* GetBeatmapCharacteristicBySerializedName(Il2CppString* serializedName);
             
         private:
+
+            static inline Array<GlobalNamespace::BeatmapCharacteristicSO*>* beatmapCharacteristics = nullptr;
+
+            static void SetupCharacteristics();
 
             static const Logger& getLogger();
 

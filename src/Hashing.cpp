@@ -20,11 +20,14 @@ namespace Utils
     std::string Hashing::GetCustomLevelHash(GlobalNamespace::StandardLevelInfoSaveData* level, std::string customLevelPath)
     {
         getLogger().info("GetCustomLevelHash Called");
+        std::string actualPath = customLevelPath + "/Info.dat";
+        if (!fileexists(actualPath)) actualPath = customLevelPath + "/info.dat";
+        
         std::string hash = "";
 
-        getLogger().info("Reading all bytes from %s", customLevelPath.c_str());
+        getLogger().info("Reading all bytes from %s", actualPath.c_str());
 
-        std::vector<char> bytesAsChar = readbytes(customLevelPath);
+        std::vector<char> bytesAsChar = readbytes(actualPath);
         std::vector<uint8_t> bytesVector;
         
         for (auto c : bytesAsChar)
