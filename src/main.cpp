@@ -395,7 +395,8 @@ MAKE_HOOK_OFFSETLESS(BeatmapLevelsModel_GetBeatmapLevelAsync, Il2CppObject*, Glo
     getLogger().info("Called getbeatmaplevelAsync!");
     if (isCustomSong(to_utf8(csstrtostr(levelID))) && !self->loadedBeatmapLevels->IsInCache(levelID))
     {
-        //if not in cache, add to cache
+
+        auto function = [](Il2CppString* levelID, GlobalNamespace::BeatmapLevelsModel* beatmapLevelsModel){//if not in cache, add to cache
         getLogger().info("Getting custom level from loadedpreviewbeatmaplevels");
         std::string customLevelHash = to_utf8(csstrtostr(levelID));
         customLevelHash.erase(0, 13);
@@ -404,7 +405,13 @@ MAKE_HOOK_OFFSETLESS(BeatmapLevelsModel_GetBeatmapLevelAsync, Il2CppObject*, Glo
         getLogger().info("Level %s was not in cache, testing if custom", to_utf8(csstrtostr(customLevel->songName)).c_str());
         GlobalNamespace::CustomBeatmapLevel* level = SongLoader::LevelLoader::LoadCustomBeatmapLevel(customLevel);
         
-        self->loadedBeatmapLevels->PutToCache(levelID, reinterpret_cast<GlobalNamespace::IBeatmapLevel*>(level));
+        if (level->beatmapLevelData != nullptr) beatmapLevelsModel->loadedBeatmapLevels->PutToCache(levelID, reinterpret_cast<GlobalNamespace::IBeatmapLevel*>(level));
+        
+        };
+
+        std::thread addToCache(function, levelID, self);
+        addToCache.detach();
+        
     }
 
     return BeatmapLevelsModel_GetBeatmapLevelAsync(self, levelID, token);
@@ -421,9 +428,14 @@ MAKE_HOOK_OFFSETLESS(StandardLevelDetailView_SetContent, void, GlobalNamespace::
     StandardLevelDetailView_SetContent(self, level, defaultDifficulty, defaultBeatmapCharacteristic, playerdata, showPlayerStats);
 }
 
+MAKE_HOOK_OFFSETLESS(StandardLevelDetailView_ShowContent, void, GlobalNamespace::StandardLevelDetailView* self, GlobalNamespace::StandardLevelDetailViewController::ContentType contentType, Il2CppString* errorText, float downloadingProgress, Il2CppString* downloadingText)
+{
+    StandardLevelDetailView_ShowContent(self, contentType, errorText, downloadingProgress, downloadingText);
+}
+
 MAKE_HOOK_OFFSETLESS(StandardLevelDetailView_RefreshContent, void, GlobalNamespace::StandardLevelDetailView* self)
 {
-    if (self->level == nullptr || self->level->get_beatmapLevelData() == nullptr)
+        if (self->level == nullptr || self->level->get_beatmapLevelData() == nullptr)
 		{
 			return;
 		}
@@ -534,6 +546,7 @@ extern "C" void load() {
     INSTALL_HOOK_OFFSETLESS(BeatmapLevelsModel_GetBeatmapLevelAsync, il2cpp_utils::FindMethodUnsafe("", "BeatmapLevelsModel", "GetBeatmapLevelAsync", 2));
     //INSTALL_HOOK_OFFSETLESS(CustomDifficultyBeatmap_New_ctor, il2cpp_utils::FindMethodUnsafe("", "CustomDifficultyBeatmap", ".ctor", 7));
     INSTALL_HOOK_OFFSETLESS(StandardLevelDetailView_SetContent, il2cpp_utils::FindMethodUnsafe("", "StandardLevelDetailView", "SetContent", 5));
+    INSTALL_HOOK_OFFSETLESS(StandardLevelDetailView_ShowContent, il2cpp_utils::FindMethodUnsafe("", "StandardLevelDetailView", "ShowContent", 4));
     INSTALL_HOOK_OFFSETLESS(StandardLevelDetailView_RefreshContent, il2cpp_utils::FindMethodUnsafe("", "StandardLevelDetailView", "RefreshContent", 0));
     INSTALL_HOOK_OFFSETLESS(LevelCollectionViewController_SongPlayerCrossfadeToLevelAsync, il2cpp_utils::FindMethodUnsafe("", "LevelCollectionViewController", "SongPlayerCrossfadeToLevelAsync", 1));
     getLogger().debug("Installed all hooks!");

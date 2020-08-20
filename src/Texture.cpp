@@ -3,7 +3,7 @@ ModInfo Utils::Texture::modInfo;
 //Adapted from rugtveits audio clip loader from https://github.com/Rugtveit/QuestSounds
 
 
-bool Utils::Texture::load(TextureCallback callback)
+void Utils::Texture::load()
 {
 
     getLogger().info("Loading Texture File");
@@ -21,7 +21,7 @@ bool Utils::Texture::load(TextureCallback callback)
         {
             getLogger().error("File did not exist");
         }
-        return false;
+        return;
     }
 
     //Stage 1
@@ -32,34 +32,36 @@ bool Utils::Texture::load(TextureCallback callback)
 
     //Stage 2
     const MethodInfo* addCompletedMethod = CRASH_UNLESS(il2cpp_utils::FindMethodUnsafe(TextureAsync, "add_completed", 1));
-    auto* action = RET_0_UNLESS(il2cpp_utils::MakeAction(addCompletedMethod, 0, new TextureCallback(callback), TextureCompleted));
+    auto action = CRASH_UNLESS(il2cpp_utils::MakeAction(addCompletedMethod, 0, this, TextureCompleted));
+    //auto* action = CRASH_UNLESS(il2cpp_utils::MakeAction(addCompletedMethod, 0, new TextureCallback(callback), TextureCompleted));
     CRASH_UNLESS(il2cpp_utils::RunMethod(TextureAsync, addCompletedMethod, action));
-    return true;
 }
 
-void Utils::Texture::TextureCompleted(TextureCallback* callback, UnityEngine::Networking::UnityWebRequestAsyncOperation* textureRequest)
-{
+void Utils::Texture::TextureCompleted(Texture* obj, Il2CppObject* asyncOp)
+{   
+
     getLogger().info("Image loaded");
-    auto* texture = UnityEngine::Networking::DownloadHandlerTexture::GetContent(reinterpret_cast<UnityEngine::Networking::UnityWebRequest*>(textureRequest));
-    getLogger().info("Calling Callback");
-    (*callback)(texture);
-}   
-    /*// Stage 1
+    auto* tex = CRASH_UNLESS(il2cpp_utils::RunMethod<UnityEngine::Texture*>("UnityEngine.Networking", "DownloadHandlerTexture", "GetContent", reinterpret_cast<UnityEngine::Networking::UnityWebRequest*>(obj->TextureRequest)));;//UnityEngine::Networking::DownloadHandlerTexture::GetContent(reinterpret_cast<UnityEngine::Networking::UnityWebRequest*>(textureRequest));
+
+    // Stage 1
    
     getLogger().info("Creating tex2D from image");
     obj->texture = UnityEngine::Texture2D::CreateExternalTexture(tex->get_width(), tex->get_height(), UnityEngine::TextureFormat::ARGB32, false, false, tex->GetNativeTexturePtr());
     getLogger().info("generating sprite from texture data");
-    UnityEngine::Rect rect;
-    UnityEngine::Vector2 pivot;
-    UnityEngine::Vector4 border;
-    UnityEngine::Sprite* sprite = UnityEngine::Sprite::Create(obj->texture, rect, pivot, 20, 0, 0, border, true);
-    getLogger().info("Setting sprite");
-    obj->characteristic->icon = sprite;
-    getLogger().info("Loaded sprite has been set");
+    UnityEngine::Texture2D* useableTexture = UnityEngine::Texture2D::CreateExternalTexture(obj->texture->get_width(), obj->texture->get_height(), UnityEngine::TextureFormat::ARGB32, false, false, obj->texture->GetNativeTexturePtr());
+
+    UnityEngine::Rect rect = *UnityEngine::Rect::New_ctor(0, 0, 50, 50);//tempCharCollection->beatmapCharacteristics->values[0]->icon->get_rect();
+    UnityEngine::Vector2 pivot = UnityEngine::Vector2::get_zero();//tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pivot(); 
+    float pixelsPerUnit = 50;//tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pixelsPerUnit();
+    uint extrude = 1;
+    UnityEngine::SpriteMeshType meshType = 1;
+    UnityEngine::Vector4 border = UnityEngine::Vector4::get_zero();//tempCharCollection->beatmapCharacteristics->values[0]->icon->get_border();
+    obj->characteristic->icon = UnityEngine::Sprite::Create(useableTexture, rect, pivot, pixelsPerUnit, extrude, meshType, border, true);
+
     obj->loaded = true;
     // Finished
 }
-*/
+
 /*
 UnityEngine::Texture2D* Utils::Texture::getImage()
 {

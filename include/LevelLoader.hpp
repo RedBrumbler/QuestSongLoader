@@ -36,6 +36,7 @@
 #include "System/Threading/Tasks/Task_1.hpp"
 #include "System/Runtime/CompilerServices/TaskAwaiter_1.hpp"
 #include "vorbisLib/stb_vorbis.h"
+#include <thread>
 
 namespace SongLoader
 {

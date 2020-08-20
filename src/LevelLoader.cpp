@@ -26,8 +26,23 @@ namespace SongLoader
 		hash.erase(0, 13);
 		getLogger().info("Song Hash: %s", hash.c_str());
 		
+		
+		/*
+		if (customPreviewBeatmapLevel->previewAudioClip == nullptr)
+		{
+			auto loadClip = [](GlobalNamespace::CustomPreviewBeatmapLevel* customPreview)
+			{
+				getLogger().info("loadclip thread started");
+				getLogger().info("Inside Lambda: %p", customPreview);
+				customPreview->previewAudioClip = LoadAudioClip(customPreview);
+				
+			};
+			std::thread audioClip(loadClip, customPreviewBeatmapLevel);
+			audioClip.detach();
+		}
+		*/
 
-		if (customPreviewBeatmapLevel->previewAudioClip == nullptr) customPreviewBeatmapLevel->previewAudioClip = LoadAudioClip(customPreviewBeatmapLevel);//(UnityEngine::AudioClip*)SongLoader::Loader::soundLoader.find(hash)->second->getClip();
+		if (customPreviewBeatmapLevel->previewAudioClip == nullptr) customPreviewBeatmapLevel->previewAudioClip = LoadAudioClip(customPreviewBeatmapLevel);
 		UnityEngine::AudioClip* previewAudioClip = customPreviewBeatmapLevel->previewAudioClip;
 		getLogger().info("Audio Clip should be loaded, isNull?: %d", previewAudioClip == nullptr);
 		
@@ -46,16 +61,17 @@ namespace SongLoader
         
         Array<GlobalNamespace::IDifficultyBeatmapSet*>* difficultyBeatmapSets = reinterpret_cast<Array<GlobalNamespace::IDifficultyBeatmapSet*>*>(il2cpp_functions::array_new(il2cpp_utils::GetClassFromName("", "IDifficultyBeatmapSet"), array->Length()));
 		difficultyBeatmapSets = array;
-        UnityEngine::AudioClip* audioClip = previewAudioClip;//(previewAudioClip == nullptr) ? (UnityEngine::AudioClip*)audioLoader->getClip() : previewAudioClip;
+
+        UnityEngine::AudioClip* clip = previewAudioClip;//(previewAudioClip == nullptr) ? (UnityEngine::AudioClip*)audioLoader->getClip() : previewAudioClip;
 		GlobalNamespace::BeatmapLevelData* result;
-		if (audioClip == nullptr)
+		if (clip == nullptr)
 		{
 			getLogger().info("AudioClip was nullptr, returning nullptr");
 			result = nullptr;
 		}
 		else
 		{
-			result = GlobalNamespace::BeatmapLevelData::New_ctor(audioClip, difficultyBeatmapSets);
+			result = GlobalNamespace::BeatmapLevelData::New_ctor(clip, difficultyBeatmapSets);
 		}
 		getLogger().info("End LoadBeatmapLevelData");
 		return result;

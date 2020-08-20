@@ -66,7 +66,10 @@
 #include "Utils/Texture.hpp" 
 #define SONG_PATH_FORMAT "/sdcard/BeatSaberSongs/%s"
 #define FILE_PATH_FORMAT "/sdcard/BeatSaberSongs/%s/%s"
-
+#include "rapidjson/include/rapidjson/document.h"
+using namespace rapidjson;
+#include <future>
+#include <thread>
 namespace SongLoader
 {
     class Loader
@@ -75,9 +78,7 @@ namespace SongLoader
             // cache of loaded preview maps
             static std::map<std::string, GlobalNamespace::CustomPreviewBeatmapLevel*> previewCache;
 
-            // cache to sound pointers
-            static std::map<std::string, Utils::Audio*> soundLoader;
-
+            static std::map<std::string, Document*> deserializedJSONData;
             /// @brief get a reference to the custompreviewbeatmaplevel* vector
             /// @return custompreviewbeatmaplevel* vector
             static std::vector<GlobalNamespace::CustomPreviewBeatmapLevel*>* GetLevels();
@@ -130,7 +131,7 @@ namespace SongLoader
             /// @brief Loads a standardlevelinfosavedata from file, basically the info.dat in a class representation
             /// @param path the path to the info.dat
             /// @return C# object StandardLevelInfoSaveData
-            static GlobalNamespace::StandardLevelInfoSaveData* GetStandardLevelInfoSaveData(std::string path);
+            static GlobalNamespace::StandardLevelInfoSaveData* GetStandardLevelInfoSaveData(std::string path, Document& jsonDoc);
 
             /// @brief own implementation of CustomLevelLoader.LoadEnvironmentInfo due to it not existing on quest
             /// @param environmentName desired environment name

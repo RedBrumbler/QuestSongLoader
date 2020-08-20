@@ -29,11 +29,14 @@ namespace Utils
             /// @brief constructs new Texture loader that immediately starts loading
             /// @param filePath path to the image file to read from
             /// @param spriteToSet pointer to the sprite pointer that needs to be set
-            Texture(std::string filePath, TextureCallback callback)
+            Texture(std::string filePath, GlobalNamespace::BeatmapCharacteristicSO* characteristic)//, TextureCallback callback)
             {
                 this->filePath = filePath;
-                this->load(callback);
+                this->characteristic = characteristic;
+                this->load();
             };
+
+            GlobalNamespace::BeatmapCharacteristicSO* characteristic;
 
             /// @brief activated on first menu load
             static void OnLoad(ModInfo modInfo);
@@ -43,13 +46,13 @@ namespace Utils
             UnityEngine::Texture* texture;
             //UnityEngine::Texture2D* getImage();
             bool loaded = false;
-            bool load(TextureCallback callback);
+            void load();
         private: 
             static ModInfo modInfo;
             static const Logger& getLogger();
             
             Il2CppObject* TextureAsync = nullptr;
             Il2CppObject* TextureRequest;
-            static void TextureCompleted(TextureCallback* callback, UnityEngine::Networking::UnityWebRequestAsyncOperation* textureRequest);
+            static void TextureCompleted(Texture* obj, Il2CppObject* asyncOp);
     };
 }

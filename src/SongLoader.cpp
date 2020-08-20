@@ -4,7 +4,8 @@ ModInfo SongLoader::Loader::modInfo;
 std::vector<GlobalNamespace::CustomPreviewBeatmapLevel*> SongLoader::Loader::previewBeatMaps;
 GlobalNamespace::BeatmapLevelPackCollectionSO* SongLoader::Loader::customPackCollection;
 std::map<std::string, GlobalNamespace::CustomPreviewBeatmapLevel*> SongLoader::Loader::previewCache;
-std::map<std::string, Utils::Audio*> SongLoader::Loader::soundLoader;
+std::map<std::string, Document*> SongLoader::Loader::deserializedJSONData;
+
 namespace SongLoader
 {
     const Logger& Loader::getLogger() 
@@ -23,37 +24,48 @@ namespace SongLoader
     {
         getLogger().info("Loader Instantiated");
         MenuLoaded();
-        RefreshSongs();
+        std::thread refreshSongs([]{RefreshSongs();});
+        refreshSongs.detach();
+        //auto fuck = std::async(std::launch::async, []{RefreshSongs();});
+        //RefreshSongs();
     }
-
     void Loader::MenuLoaded()
     {
-        getLogger().info("MenuLoaded Called");
+        getLogger().info("Menu Loaded called");
         if (AreSongsLoading)
         {
-            //Songs are loading and the menu load was called again? this could cause crashes and we should stop loading
-
             cancelLoading = true;
             AreSongsLoading = false;
             LoadingProgress = 0;
-            getLogger().error("Song loading was cancelled by player becasue they loaded a new scene");
+            getLogger().error("Menu loading was called while songs were loading, cancelling load");
         }
     }
-    
+
     void Loader::RefreshSongs(bool fullRefresh)
     {
-        getLogger().info("RefreshSongs Called");
-        if (AreSongsLoading) return;
-
+        getLogger().info("Refreshing Songs");
+        if (AreSongsLoading)
+        { 
+            getLogger().error("Refresh songs called while already loading songs, skipping...");
+            return;
+        }
         AreSongsLoading = true;
-        AreSongsLoaded = false;
         LoadingProgress = 0;
+        AreSongsLoaded = false;
         loadingCancelled = false;
 
         RetrieveAllSongs(fullRefresh);
     }
-    
-    
+    /*
+    void Loader::RetrieveAllSongs(bool fullRefresh)
+    {
+        if (fullRefresh)
+        {
+            previewCache.clear();
+            deserializedJSONData.clear();
+        }
+    }
+    */
     void Loader::RetrieveAllSongs(bool fullrefresh)
     {
         getLogger().info("RetrieveAllSongs Called");
@@ -72,7 +84,8 @@ namespace SongLoader
         for (auto dir : songFolders)
         {
             i++;
-            GlobalNamespace::StandardLevelInfoSaveData* saveData = GetStandardLevelInfoSaveData(string_format(SONG_PATH_FORMAT, dir.c_str()));
+            Document jsonDoc;
+            GlobalNamespace::StandardLevelInfoSaveData* saveData = GetStandardLevelInfoSaveData(string_format(SONG_PATH_FORMAT, dir.c_str()), jsonDoc);
             std::string hash;
             GlobalNamespace::CustomPreviewBeatmapLevel* customLevel = LoadSong(saveData, string_format(SONG_PATH_FORMAT, dir.c_str()), hash);
             getLogger().info("Pushing Back level");
@@ -82,6 +95,11 @@ namespace SongLoader
             if (!previewCache.contains(hash))
             {
                 previewCache.insert_or_assign(hash, customLevel);
+            }
+
+            if (!deserializedJSONData.contains(hash))
+            {
+                deserializedJSONData.insert_or_assign(hash, &jsonDoc);
             }
         }
         
@@ -150,33 +168,11 @@ namespace SongLoader
         lawless->icon = lawlessSprite;
         lightshow->icon = lightshowSprite;
         */
-        
-        Utils::Texture("sdcard/Pictures/Lawless.png", [&](UnityEngine::Texture* texture)
-        {
-            UnityEngine::Texture2D* useableTexture = UnityEngine::Texture2D::CreateExternalTexture(texture->get_width(), texture->get_height(), UnityEngine::TextureFormat::ARGB32, false, false, texture->GetNativeTexturePtr());
+        /*
+        Utils::Texture("sdcard/Pictures/Lawless.png", lawless);
 
-            UnityEngine::Rect rect = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_rect();
-            UnityEngine::Vector2 pivot = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pivot(); 
-            float pixelsPerUnit = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pixelsPerUnit();
-            uint extrude = 1;
-            UnityEngine::SpriteMeshType meshType = 1;
-            UnityEngine::Vector4 border = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_border();
-            lawless->icon = UnityEngine::Sprite::Create(useableTexture, rect, pivot, pixelsPerUnit, extrude, meshType, border, true);
-        });
-
-        Utils::Texture("sdcard/Pictures/Lightshow.png", [&](UnityEngine::Texture* texture)
-        {
-            UnityEngine::Texture2D* useableTexture = UnityEngine::Texture2D::CreateExternalTexture(texture->get_width(), texture->get_height(), UnityEngine::TextureFormat::ARGB32, false, false, texture->GetNativeTexturePtr());
-
-            UnityEngine::Rect rect = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_rect();
-            UnityEngine::Vector2 pivot = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pivot(); 
-            float pixelsPerUnit = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_pixelsPerUnit();
-            uint extrude = 1;
-            UnityEngine::SpriteMeshType meshType = 1;
-            UnityEngine::Vector4 border = tempCharCollection->beatmapCharacteristics->values[0]->icon->get_border();
-            lightshow->icon = UnityEngine::Sprite::Create(useableTexture, rect, pivot, pixelsPerUnit, extrude, meshType, border, true);
-        });
-        
+        Utils::Texture("sdcard/Pictures/Lightshow.png", lightshow);
+        */
         int originalLength = tempCharCollection->get_beatmapCharacteristics()->Length();
         Array<GlobalNamespace::BeatmapCharacteristicSO*>* editedArray = reinterpret_cast<Array<GlobalNamespace::BeatmapCharacteristicSO*>*>(il2cpp_functions::array_new(il2cpp_utils::GetClassFromName("", "BeatmapCharacteristicSO"), originalLength + 2));
 
@@ -184,12 +180,13 @@ namespace SongLoader
         {
             editedArray->values[i] = tempCharCollection->get_beatmapCharacteristics()->values[i];
         }
+
         editedArray->values[originalLength] = lawless;
         editedArray->values[originalLength + 1] = lightshow;
 
         tempCharCollection->beatmapCharacteristics = editedArray;
     }
-
+    /*
     void Loader::LoadSound(std::string filePath, std::string hash)
     {
         getLogger().info("Loadsound from %s", filePath.c_str());
@@ -198,7 +195,7 @@ namespace SongLoader
         soundLoader.find(hash)->second->songHash = hash;
         soundLoader.find(hash)->second->load();
     }
-
+    */
     void Loader::CreatePack()
     {
         getLogger().info("Creating Pack");
@@ -412,7 +409,7 @@ namespace SongLoader
         return result;
     }
 
-    GlobalNamespace::StandardLevelInfoSaveData* Loader::GetStandardLevelInfoSaveData(std::string path)
+    GlobalNamespace::StandardLevelInfoSaveData* Loader::GetStandardLevelInfoSaveData(std::string path, Document& jsonDoc)
     {
         getLogger().info("GetStandardLevelInfoSaveData Called");
         std::string newPath = path + "/Info.dat";
@@ -420,7 +417,7 @@ namespace SongLoader
 
         getLogger().info("Getting info.dat info from %s", newPath.c_str());
         std::string info = readfile(newPath);
-        
+        jsonDoc.Parse(info.c_str());
         return GlobalNamespace::StandardLevelInfoSaveData::DeserializeFromJSONString(il2cpp_utils::createcsstr(info));
     }
 
