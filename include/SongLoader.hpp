@@ -122,7 +122,7 @@ namespace SongLoader
             /// @param songPath the full folder path of the song
             /// @param hash the hash that gets written to
             /// @return beatmap preview object
-            static GlobalNamespace::CustomPreviewBeatmapLevel* LoadSong(GlobalNamespace::StandardLevelInfoSaveData* saveData, std::string songPath, std::string& hash);
+            static GlobalNamespace::CustomPreviewBeatmapLevel* LoadSong(std::string songPath, std::string& hash);
             
             /// @brief Loads a standardlevelinfosavedata from file, basically the info.dat in a class representation
             /// @param path the path to the info.dat

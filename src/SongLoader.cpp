@@ -75,10 +75,8 @@ namespace SongLoader
             // for each folder there's gonna be a path and a hash, and each folder contains 1 song
             std::string path = string_format(SONG_PATH_FORMAT, folder.c_str());
             std::string hash;
-            // get info.dat as data that the game can use
-            GlobalNamespace::StandardLevelInfoSaveData* saveData = GetStandardLevelInfoSaveData(path);
             // load the custom level
-            GlobalNamespace::CustomPreviewBeatmapLevel* level = LoadSong(saveData, path, hash);
+            GlobalNamespace::CustomPreviewBeatmapLevel* level = LoadSong(path, hash);
             // if not in the cache already, add it
             if (!previewCache.contains(hash)) previewCache.insert_or_assign(hash, level);
 
@@ -257,10 +255,12 @@ namespace SongLoader
         packAdded = true;
     }
 
-    GlobalNamespace::CustomPreviewBeatmapLevel* Loader::LoadSong(GlobalNamespace::StandardLevelInfoSaveData* saveData, std::string songPath, std::string& hash)
+    GlobalNamespace::CustomPreviewBeatmapLevel* Loader::LoadSong(std::string songPath, std::string& hash)
     {
-
+        // get info.dat as data that the game can use
+        GlobalNamespace::StandardLevelInfoSaveData* saveData = GetStandardLevelInfoSaveData(songPath);
         getLogger().info("Loading song Called, loading %s", to_utf8(csstrtostr(saveData->songName)).c_str());
+        
         // declaring result pointer ahead of time
         GlobalNamespace::CustomPreviewBeatmapLevel* result;
         

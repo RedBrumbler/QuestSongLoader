@@ -28,13 +28,37 @@ namespace Utils
         getLogger().info("Reading all bytes from %s", actualPath.c_str());
 
         std::vector<char> bytesAsChar = readbytes(actualPath);
+        getLogger().info("Starting reading beatmaps");
+        for (int i = 0; i < level->difficultyBeatmapSets->Length(); i++)
+        {
+            getLogger().info("diffBeatmapSet %d", i);
+            for (int j = 0; j < level->difficultyBeatmapSets->values[i]->difficultyBeatmaps->Length(); j++)
+            {
+                getLogger().info("diffBeatmap %d", j);
+                std::string diffFile = to_utf8(csstrtostr(level->difficultyBeatmapSets->values[i]->difficultyBeatmaps->values[j]->beatmapFilename));
+                if (!fileexists(customLevelPath + "/" + diffFile))
+                {
+                    getLogger().error("File %s did not exist", (customLevelPath + "/" + diffFile).c_str());
+                    continue;
+                } 
+
+                std::vector<char> currentDiff = readbytes(customLevelPath + "/" + diffFile);
+
+                for (auto c : currentDiff)
+                {
+                    bytesAsChar.push_back(c);
+                }
+            }
+        }
+        getLogger().info("getting bytes vector");
         std::vector<uint8_t> bytesVector;
-        
+        getLogger().info("Setting values");
         for (auto c : bytesAsChar)
         {
             bytesVector.push_back(c);
         }
 
+        getLogger().info("converting to array");
         Array<uint8_t>* bytes = il2cpp_utils::vectorToArray(bytesVector);//Utils::File::ReadAllBytes(customLevelPath);
 
         getLogger().info("Got Bytes: %d", bytes == nullptr);

@@ -133,7 +133,7 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
 
     SceneManager_ActiveSceneChanged(previousActiveScene, nextActiveScene);
 
-    if (firstMenuActivation && activeSceneStr == healthAndSafety)
+    if (firstMenuActivation && activeSceneStr == menuViewControllers)
     {
         loader = new SongLoader::Loader();
         firstMenuActivation = false;
@@ -399,8 +399,10 @@ MAKE_HOOK_OFFSETLESS(BeatmapLevelsModel_GetBeatmapLevelAsync, Il2CppObject*, Glo
     {
         getLogger().info("LevelID before: %s", to_utf8(csstrtostr(levelID)).c_str());
         
-        auto function = [](Il2CppString* levelID, GlobalNamespace::BeatmapLevelsModel* beatmapLevelsModel, System::Threading::CancellationToken* token){//if not in cache, add to cache
         GlobalNamespace::StandardLevelDetailViewController* detailView = (GlobalNamespace::StandardLevelDetailViewController*)Utils::Unity::GetFirstObjectOfType(il2cpp_utils::GetClassFromName("", "StandardLevelDetailViewController"));
+
+        //auto function = [](Il2CppString* levelID, GlobalNamespace::BeatmapLevelsModel* beatmapLevelsModel, GlobalNamespace::StandardLevelDetailViewController* detailView){//if not in cache, add to cache
+        
         //detailView->ShowContent(GlobalNamespace::StandardLevelDetailViewController::ContentType::_get_Loading(), il2cpp_utils::createcsstr(""), 0.0, il2cpp_utils::createcsstr(""));
         
         getLogger().info("Getting custom level from loadedpreviewbeatmaplevels");
@@ -412,8 +414,8 @@ MAKE_HOOK_OFFSETLESS(BeatmapLevelsModel_GetBeatmapLevelAsync, Il2CppObject*, Glo
         getLogger().info("Level %s was not in cache, testing if custom", to_utf8(csstrtostr(customLevel->songName)).c_str());
         GlobalNamespace::CustomBeatmapLevel* level = SongLoader::LevelLoader::LoadCustomBeatmapLevel(customLevel);
         
-        if (level->beatmapLevelData != nullptr) beatmapLevelsModel->loadedBeatmapLevels->PutToCache(levelID, reinterpret_cast<GlobalNamespace::IBeatmapLevel*>(level));
-        getLogger().info("isInCache now: %d", beatmapLevelsModel->loadedBeatmapLevels->IsInCache(levelID));
+        if (level->beatmapLevelData != nullptr) self->loadedBeatmapLevels->PutToCache(levelID, reinterpret_cast<GlobalNamespace::IBeatmapLevel*>(level));
+        getLogger().info("isInCache now: %d", self->loadedBeatmapLevels->IsInCache(levelID));
         //detailView->ShowContent(GlobalNamespace::StandardLevelDetailViewController::ContentType::_get_OwnedAndReady(), il2cpp_utils::createcsstr(""), 0.0, il2cpp_utils::createcsstr(""));
         /*
         if (to_utf8(csstrtostr(level->levelID)) == to_utf8(csstrtostr(detailView->previewBeatmapLevel->get_levelID())))
@@ -437,11 +439,11 @@ MAKE_HOOK_OFFSETLESS(BeatmapLevelsModel_GetBeatmapLevelAsync, Il2CppObject*, Glo
         
         
         //detailView->RefreshAvailabilityAsync();
-        };
+        //};
 
-        std::thread addToCache(function, levelID, self, token);
-        addToCache.detach();
-        
+        //std::thread addToCache(function, levelID, self, detailView);
+        //addToCache.detach();
+        detailView->RefreshAvailabilityAsync();
     }
     
     return BeatmapLevelsModel_GetBeatmapLevelAsync(self, levelID, token);

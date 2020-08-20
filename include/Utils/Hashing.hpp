@@ -17,7 +17,8 @@
 #include "System/IO/File.hpp"
 #include "Utils/File.hpp"
 #include "System/Collections/Generic/IEnumerable_1.hpp"
-
+#include "GlobalNamespace/StandardLevelInfoSaveData_DifficultyBeatmapSet.hpp"
+#include "GlobalNamespace/StandardLevelInfoSaveData_DifficultyBeatmap.hpp"
 namespace Utils
 {   
     class SongHashData
@@ -42,10 +43,8 @@ namespace Utils
     class Hashing
     {
         public:
-            /*static std::map<std::string, Utils::SongHashData> cachedSongHashData = {
-                {"stuff", new SongHashData()}
-            };
-            */
+            //static std::map<std::string, Utils::SongHashData> cachedSongHashData;
+            
 
             static void OnLoad(ModInfo modInfo);
 
