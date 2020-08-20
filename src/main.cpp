@@ -58,6 +58,7 @@
 #include "Polyglot/Localization.hpp"
 #include "GlobalNamespace/RankModel.hpp"
 #include "GlobalNamespace/LevelCollectionViewController.hpp"
+#include "GlobalNamespace/StandardLevelDetailViewController.hpp"
 //#include "GlobalNamespace/"
 static ModInfo modInfo;
 bool customsExist = false;
@@ -407,6 +408,8 @@ MAKE_HOOK_OFFSETLESS(BeatmapLevelsModel_GetBeatmapLevelAsync, Il2CppObject*, Glo
         
         if (level->beatmapLevelData != nullptr) beatmapLevelsModel->loadedBeatmapLevels->PutToCache(levelID, reinterpret_cast<GlobalNamespace::IBeatmapLevel*>(level));
         
+        GlobalNamespace::StandardLevelDetailViewController* detailView = (GlobalNamespace::StandardLevelDetailViewController*)Utils::Unity::GetFirstObjectOfType(il2cpp_utils::GetClassFromName("", "StandardLevelDetailViewController"));
+        detailView->RefreshAvailabilityAsync();
         };
 
         std::thread addToCache(function, levelID, self);
@@ -428,9 +431,11 @@ MAKE_HOOK_OFFSETLESS(StandardLevelDetailView_SetContent, void, GlobalNamespace::
     StandardLevelDetailView_SetContent(self, level, defaultDifficulty, defaultBeatmapCharacteristic, playerdata, showPlayerStats);
 }
 
-MAKE_HOOK_OFFSETLESS(StandardLevelDetailView_ShowContent, void, GlobalNamespace::StandardLevelDetailView* self, GlobalNamespace::StandardLevelDetailViewController::ContentType contentType, Il2CppString* errorText, float downloadingProgress, Il2CppString* downloadingText)
+MAKE_HOOK_OFFSETLESS(StandardLevelDetailViewController_ShowContent, void, GlobalNamespace::StandardLevelDetailView* self, GlobalNamespace::StandardLevelDetailViewController::ContentType contentType, Il2CppString* errorText, float downloadingProgress, Il2CppString* downloadingText)
 {
-    StandardLevelDetailView_ShowContent(self, contentType, errorText, downloadingProgress, downloadingText);
+    //if (contentType.value == 5) contentType.value = 0;
+    
+    StandardLevelDetailViewController_ShowContent(self, contentType, errorText, downloadingProgress, downloadingText);
 }
 
 MAKE_HOOK_OFFSETLESS(StandardLevelDetailView_RefreshContent, void, GlobalNamespace::StandardLevelDetailView* self)
@@ -546,7 +551,7 @@ extern "C" void load() {
     INSTALL_HOOK_OFFSETLESS(BeatmapLevelsModel_GetBeatmapLevelAsync, il2cpp_utils::FindMethodUnsafe("", "BeatmapLevelsModel", "GetBeatmapLevelAsync", 2));
     //INSTALL_HOOK_OFFSETLESS(CustomDifficultyBeatmap_New_ctor, il2cpp_utils::FindMethodUnsafe("", "CustomDifficultyBeatmap", ".ctor", 7));
     INSTALL_HOOK_OFFSETLESS(StandardLevelDetailView_SetContent, il2cpp_utils::FindMethodUnsafe("", "StandardLevelDetailView", "SetContent", 5));
-    INSTALL_HOOK_OFFSETLESS(StandardLevelDetailView_ShowContent, il2cpp_utils::FindMethodUnsafe("", "StandardLevelDetailView", "ShowContent", 4));
+    INSTALL_HOOK_OFFSETLESS(StandardLevelDetailViewController_ShowContent, il2cpp_utils::FindMethodUnsafe("", "StandardLevelDetailViewController", "ShowContent", 4));
     INSTALL_HOOK_OFFSETLESS(StandardLevelDetailView_RefreshContent, il2cpp_utils::FindMethodUnsafe("", "StandardLevelDetailView", "RefreshContent", 0));
     INSTALL_HOOK_OFFSETLESS(LevelCollectionViewController_SongPlayerCrossfadeToLevelAsync, il2cpp_utils::FindMethodUnsafe("", "LevelCollectionViewController", "SongPlayerCrossfadeToLevelAsync", 1));
     getLogger().debug("Installed all hooks!");
