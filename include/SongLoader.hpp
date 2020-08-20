@@ -70,6 +70,7 @@
 using namespace rapidjson;
 #include <future>
 #include <thread>
+
 namespace SongLoader
 {
     class Loader
@@ -77,11 +78,6 @@ namespace SongLoader
         public:
             // cache of loaded preview maps
             static std::map<std::string, GlobalNamespace::CustomPreviewBeatmapLevel*> previewCache;
-
-            static std::map<std::string, Document*> deserializedJSONData;
-            /// @brief get a reference to the custompreviewbeatmaplevel* vector
-            /// @return custompreviewbeatmaplevel* vector
-            static std::vector<GlobalNamespace::CustomPreviewBeatmapLevel*>* GetLevels();
 
             /// @brief activated on first menu load
             static void OnLoad(ModInfo modInfo);
@@ -131,7 +127,7 @@ namespace SongLoader
             /// @brief Loads a standardlevelinfosavedata from file, basically the info.dat in a class representation
             /// @param path the path to the info.dat
             /// @return C# object StandardLevelInfoSaveData
-            static GlobalNamespace::StandardLevelInfoSaveData* GetStandardLevelInfoSaveData(std::string path, Document& jsonDoc);
+            static GlobalNamespace::StandardLevelInfoSaveData* GetStandardLevelInfoSaveData(std::string path);
 
             /// @brief own implementation of CustomLevelLoader.LoadEnvironmentInfo due to it not existing on quest
             /// @param environmentName desired environment name
@@ -146,9 +142,6 @@ namespace SongLoader
             static void AddPack();
 
             static inline std::string customSongPath = string_format(SONG_PATH_FORMAT, "");
-
-            /// @brief Loads in all music files in 
-            static void LoadSound(std::string filePath, std::string hash);
             
             static inline bool cancelLoading = false;
             static inline bool AreSongsLoading = false;
@@ -156,9 +149,6 @@ namespace SongLoader
             static inline bool loadingCancelled = false;
             static inline float LoadingProgress = 0;
             
-            //Il2CppNamespace::Loader* loader;
-
-            static std::vector<GlobalNamespace::CustomPreviewBeatmapLevel*> previewBeatMaps;
             static GlobalNamespace::BeatmapLevelPackCollectionSO* customPackCollection;
             static inline GlobalNamespace::BeatmapCharacteristicCollectionSO* beatmapCharacteristicCollection = nullptr;
             static inline GlobalNamespace::CachedMediaAsyncLoader* cachedMediaAsyncLoaderSO = nullptr;

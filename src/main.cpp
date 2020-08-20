@@ -59,6 +59,7 @@
 #include "GlobalNamespace/RankModel.hpp"
 #include "GlobalNamespace/LevelCollectionViewController.hpp"
 #include "GlobalNamespace/StandardLevelDetailViewController.hpp"
+#include "GlobalNamespace/PlayerDataModel.hpp"
 //#include "GlobalNamespace/"
 static ModInfo modInfo;
 bool customsExist = false;
@@ -396,9 +397,14 @@ MAKE_HOOK_OFFSETLESS(BeatmapLevelsModel_GetBeatmapLevelAsync, Il2CppObject*, Glo
     getLogger().info("Called getbeatmaplevelAsync!");
     if (isCustomSong(to_utf8(csstrtostr(levelID))) && !self->loadedBeatmapLevels->IsInCache(levelID))
     {
-
-        auto function = [](Il2CppString* levelID, GlobalNamespace::BeatmapLevelsModel* beatmapLevelsModel){//if not in cache, add to cache
+        getLogger().info("LevelID before: %s", to_utf8(csstrtostr(levelID)).c_str());
+        
+        auto function = [](Il2CppString* levelID, GlobalNamespace::BeatmapLevelsModel* beatmapLevelsModel, System::Threading::CancellationToken* token){//if not in cache, add to cache
+        GlobalNamespace::StandardLevelDetailViewController* detailView = (GlobalNamespace::StandardLevelDetailViewController*)Utils::Unity::GetFirstObjectOfType(il2cpp_utils::GetClassFromName("", "StandardLevelDetailViewController"));
+        //detailView->ShowContent(GlobalNamespace::StandardLevelDetailViewController::ContentType::_get_Loading(), il2cpp_utils::createcsstr(""), 0.0, il2cpp_utils::createcsstr(""));
+        
         getLogger().info("Getting custom level from loadedpreviewbeatmaplevels");
+        
         std::string customLevelHash = to_utf8(csstrtostr(levelID));
         customLevelHash.erase(0, 13);
 
@@ -407,39 +413,63 @@ MAKE_HOOK_OFFSETLESS(BeatmapLevelsModel_GetBeatmapLevelAsync, Il2CppObject*, Glo
         GlobalNamespace::CustomBeatmapLevel* level = SongLoader::LevelLoader::LoadCustomBeatmapLevel(customLevel);
         
         if (level->beatmapLevelData != nullptr) beatmapLevelsModel->loadedBeatmapLevels->PutToCache(levelID, reinterpret_cast<GlobalNamespace::IBeatmapLevel*>(level));
+        getLogger().info("isInCache now: %d", beatmapLevelsModel->loadedBeatmapLevels->IsInCache(levelID));
+        //detailView->ShowContent(GlobalNamespace::StandardLevelDetailViewController::ContentType::_get_OwnedAndReady(), il2cpp_utils::createcsstr(""), 0.0, il2cpp_utils::createcsstr(""));
+        /*
+        if (to_utf8(csstrtostr(level->levelID)) == to_utf8(csstrtostr(detailView->previewBeatmapLevel->get_levelID())))
+        {
+            getLogger().info("Level Set");
+            detailView->beatmapLevel = level;
+        }
+        getLogger().info(string_format("detailView->beatmapLevel is null: %d", detailView->beatmapLevel == nullptr));
+        getLogger().info(string_format("detailView->playerDataModel->playerData->lastSelectedBeatmapDifficulty is: %d",  detailView->playerDataModel->playerData->lastSelectedBeatmapDifficulty));
+        getLogger().info(string_format("detailView->playerDataModel->playerData->lastSelectedBeatmapCharacteristic is null: %d", detailView->playerDataModel->playerData->lastSelectedBeatmapCharacteristic == nullptr));
+        getLogger().info(string_format("detailView->playerDataModel->playerData is null: %d",detailView->playerDataModel->playerData == nullptr));
+        getLogger().info(string_format("detailView->showPlayerStats is: %d", detailView->showPlayerStats));
+        //getLogger().info("is null: %d", == nullptr);
+
+        getLogger().info("Setcontent from async");
+        detailView->standardLevelDetailView->SetContent(reinterpret_cast<GlobalNamespace::IBeatmapLevel*>(detailView->beatmapLevel), detailView->playerDataModel->playerData->lastSelectedBeatmapDifficulty, detailView->playerDataModel->playerData->lastSelectedBeatmapCharacteristic, 
+        detailView->playerDataModel->playerData, detailView->showPlayerStats);
+        getLogger().info("ShowContent from async");
+        detailView->ShowContent(GlobalNamespace::StandardLevelDetailViewController::ContentType::_get_OwnedAndReady(), il2cpp_utils::createcsstr(""), 0.0, il2cpp_utils::createcsstr(""));
+        */
         
-        GlobalNamespace::StandardLevelDetailViewController* detailView = (GlobalNamespace::StandardLevelDetailViewController*)Utils::Unity::GetFirstObjectOfType(il2cpp_utils::GetClassFromName("", "StandardLevelDetailViewController"));
-        detailView->RefreshAvailabilityAsync();
+        
+        //detailView->RefreshAvailabilityAsync();
         };
 
-        std::thread addToCache(function, levelID, self);
+        std::thread addToCache(function, levelID, self, token);
         addToCache.detach();
         
     }
-
+    
     return BeatmapLevelsModel_GetBeatmapLevelAsync(self, levelID, token);
 }
 
 MAKE_HOOK_OFFSETLESS(StandardLevelDetailView_SetContent, void, GlobalNamespace::StandardLevelDetailView* self, GlobalNamespace::IBeatmapLevel* level, GlobalNamespace::BeatmapDifficulty defaultDifficulty, GlobalNamespace::BeatmapCharacteristicSO* defaultBeatmapCharacteristic, GlobalNamespace::PlayerData* playerdata, bool showPlayerStats)
 {
+    getLogger().info("SetContent Called");
+    /*
     getLogger().info("level: %s", to_utf8(csstrtostr(level->get_songName())).c_str());
     getLogger().info("beatmapleveldata is null: %d", level->get_beatmapLevelData() == nullptr);
     getLogger().info("defaultDiff: %d", defaultDifficulty.value);
     getLogger().info("defaultChar: %s", to_utf8(csstrtostr(defaultBeatmapCharacteristic->get_name())).c_str());
     getLogger().info("playerdata null: %d", playerdata == nullptr);
-    
+    */
     StandardLevelDetailView_SetContent(self, level, defaultDifficulty, defaultBeatmapCharacteristic, playerdata, showPlayerStats);
 }
 
-MAKE_HOOK_OFFSETLESS(StandardLevelDetailViewController_ShowContent, void, GlobalNamespace::StandardLevelDetailView* self, GlobalNamespace::StandardLevelDetailViewController::ContentType contentType, Il2CppString* errorText, float downloadingProgress, Il2CppString* downloadingText)
+MAKE_HOOK_OFFSETLESS(StandardLevelDetailViewController_ShowContent, void, GlobalNamespace::StandardLevelDetailViewController* self, GlobalNamespace::StandardLevelDetailViewController::ContentType contentType, Il2CppString* errorText, float downloadingProgress, Il2CppString* downloadingText)
 {
     //if (contentType.value == 5) contentType.value = 0;
-    
+    getLogger().info("ShowContent called");
     StandardLevelDetailViewController_ShowContent(self, contentType, errorText, downloadingProgress, downloadingText);
 }
 
 MAKE_HOOK_OFFSETLESS(StandardLevelDetailView_RefreshContent, void, GlobalNamespace::StandardLevelDetailView* self)
 {
+        getLogger().info("RefreshContent called");
         if (self->level == nullptr || self->level->get_beatmapLevelData() == nullptr)
 		{
 			return;
