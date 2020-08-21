@@ -30,7 +30,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := beatsaber-hook
 LOCAL_EXPORT_C_INCLUDES := extern/beatsaber-hook
-LOCAL_SRC_FILES := extern/libbeatsaber-hook_0_4_3.so
+LOCAL_SRC_FILES := extern/libbeatsaber-hook_0_4_4.so
 LOCAL_EXPORT_C_FLAGS := -DNEED_UNSAFE_CSHARP -Wno-inaccessible-base
 include $(PREBUILT_SHARED_LIBRARY)
 # Creating prebuilt for dependency: bs-utils - version: 0.2.1

@@ -23,11 +23,11 @@ namespace SongLoader
         getLogger().info("Loader Instantiated");
         MenuLoaded();
         //dispatch refresh songs as an async thread, letting the unity thread continueing loading the game
-        std::thread refreshSongs([]{RefreshSongs();});
-        refreshSongs.detach();
+        //std::thread refreshSongs([]{RefreshSongs();});
+        //refreshSongs.detach();
         //auto fuck = std::async(std::launch::async, []{RefreshSongs();});
-        //RefreshSongs();
     }
+
     void Loader::MenuLoaded()
     {
         getLogger().info("Menu Loaded called");
@@ -37,7 +37,11 @@ namespace SongLoader
             AreSongsLoading = false;
             LoadingProgress = 0;
             getLogger().error("Menu loading was called while songs were loading, cancelling load");
+            return;
         }
+        //std::thread refreshSongs([]{RefreshSongs();});
+        //refreshSongs.detach();
+        RefreshSongs(false);
     }
 
     void Loader::RefreshSongs(bool fullRefresh)
@@ -72,6 +76,13 @@ namespace SongLoader
 
         for (auto folder : folders)
         {
+            if (cancelLoading)
+            {   
+                cancelLoading = false;
+                AreSongsLoading = false;
+                return;
+            }
+
             // for each folder there's gonna be a path and a hash, and each folder contains 1 song
             std::string path = string_format(SONG_PATH_FORMAT, folder.c_str());
             std::string hash;
@@ -192,6 +203,7 @@ namespace SongLoader
         int i = 0;
         for (auto pair : previewCache)
         {
+            getLogger().info("Adding %s to custom levels", to_utf8(csstrtostr(pair.second->get_songName())).c_str());
             // our levels are the second values in the pairs of the previewCache map
             customlevels->values[i] = pair.second;
             // add to always owned IDs, that way it won't ask us to buy the song

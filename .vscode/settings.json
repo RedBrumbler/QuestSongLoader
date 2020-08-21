@@ -62,6 +62,7 @@
         "unordered_set": "cpp",
         "utility": "cpp",
         "vector": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "thread": "cpp"
     }
 }

@@ -29,13 +29,25 @@ namespace Utils
 
         std::vector<char> bytesAsChar = readbytes(actualPath);
         getLogger().info("Starting reading beatmaps");
-        for (int i = 0; i < level->difficultyBeatmapSets->Length(); i++)
+        getLogger().info("level: %p", level);
+        getLogger().info("sets: %p", level->get_difficultyBeatmapSets());
+        for (int i = 0; i < level->get_difficultyBeatmapSets()->Length(); i++)
         {
+            getLogger().info("i level: %p", level);
+            getLogger().info("i sets: %p", level->get_difficultyBeatmapSets());
+            getLogger().info("i sets value: %p", level->get_difficultyBeatmapSets()->values[i]);
+
             getLogger().info("diffBeatmapSet %d", i);
-            for (int j = 0; j < level->difficultyBeatmapSets->values[i]->difficultyBeatmaps->Length(); j++)
+            for (int j = 0; j < level->get_difficultyBeatmapSets()->values[i]->get_difficultyBeatmaps()->Length(); j++)
             {
+                getLogger().info("j level: %p", level);
+                getLogger().info("j sets: %p", level->get_difficultyBeatmapSets());
+                getLogger().info("j sets value: %p", level->get_difficultyBeatmapSets()->values[i]);   
+                getLogger().info("j beatmaps: %p", level->get_difficultyBeatmapSets()->values[i]->get_difficultyBeatmaps());
+                getLogger().info("j beatmaps value: %p", level->get_difficultyBeatmapSets()->values[i]->get_difficultyBeatmaps()->values[j]);
+                getLogger().info("j beatmap filename: %p", level->get_difficultyBeatmapSets()->values[i]->get_difficultyBeatmaps()->values[j]->get_beatmapFilename());
                 getLogger().info("diffBeatmap %d", j);
-                std::string diffFile = to_utf8(csstrtostr(level->difficultyBeatmapSets->values[i]->difficultyBeatmaps->values[j]->beatmapFilename));
+                std::string diffFile = to_utf8(csstrtostr(level->get_difficultyBeatmapSets()->values[i]->get_difficultyBeatmaps()->values[j]->get_beatmapFilename()));
                 if (!fileexists(customLevelPath + "/" + diffFile))
                 {
                     getLogger().error("File %s did not exist", (customLevelPath + "/" + diffFile).c_str());

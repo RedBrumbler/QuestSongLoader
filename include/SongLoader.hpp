@@ -100,7 +100,6 @@ namespace SongLoader
 
             
             static GlobalNamespace::BeatmapCharacteristicSO* GetBeatmapCharacteristicBySerializedName(Il2CppString* serializedName);
-            
         private:
 
             static inline Array<GlobalNamespace::BeatmapCharacteristicSO*>* beatmapCharacteristics = nullptr;

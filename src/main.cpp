@@ -60,6 +60,8 @@
 #include "GlobalNamespace/LevelCollectionViewController.hpp"
 #include "GlobalNamespace/StandardLevelDetailViewController.hpp"
 #include "GlobalNamespace/PlayerDataModel.hpp"
+#include <thread>
+
 //#include "GlobalNamespace/"
 static ModInfo modInfo;
 bool customsExist = false;
@@ -110,34 +112,20 @@ MAKE_HOOK_OFFSETLESS(SceneManager_ActiveSceneChanged, void, Scene previousActive
     getLogger().info("Found active scene: " + activeSceneStr);
     
     //first menu load -> onload on loader
-    
-
-    if (activeSceneStr == menuViewControllers)
+    if (activeSceneStr == menuViewControllers && !firstMenuActivation)
     {
-        std::vector<std::string> songFolders;
-        if(Utils::File::GetDirectoriesInDir(string_format(SONG_PATH, ""), songFolders))
-        {
-            int size = songFolders.size();
-            getLogger().info("Found %d song Folders:", size);
-            for(int i = 0; i < size; i++)
-            {
-                getLogger().info(songFolders[i].c_str());
-            }
-            customsExist = true;
-        }
-        else
-        {
-            getLogger().error("Did not find any song folders");
-        }
+        SongLoader::Loader::MenuLoaded();
     }
-
-    SceneManager_ActiveSceneChanged(previousActiveScene, nextActiveScene);
 
     if (firstMenuActivation && activeSceneStr == menuViewControllers)
     {
         loader = new SongLoader::Loader();
         firstMenuActivation = false;
     }
+    
+    SceneManager_ActiveSceneChanged(previousActiveScene, nextActiveScene);
+
+    
 
 }
 
@@ -147,7 +135,7 @@ MAKE_HOOK_OFFSETLESS(LevelFilteringNavigationController_Setup, void, Il2CppObjec
 
 MAKE_HOOK_OFFSETLESS(BeatmapLevelsModel_Start, void, GlobalNamespace::BeatmapLevelsModel *self)
 {
-    getLogger().info("BeatMaplevelsmodelstart called");
+    //getLogger().info("BeatMaplevelsmodelstart called");
     if (!customsExist)
     {
         BeatmapLevelsModel_Start(self);
@@ -158,13 +146,13 @@ MAKE_HOOK_OFFSETLESS(BeatmapLevelsModel_Start, void, GlobalNamespace::BeatmapLev
 
 MAKE_HOOK_OFFSETLESS(AnnotatedBeatmapLevelCollectionsViewController_SetData, void, Il2CppObject* self, Array<Il2CppObject*>* annotatedBeatmapLevelCollections, int selectedItemIndex, bool hideIfOneOrNoPacks)
 {
-    getLogger().info("AnnotatedBeatmapLevelCollectionsViewControllerSetData called");
+    //getLogger().info("AnnotatedBeatmapLevelCollectionsViewControllerSetData called");
     AnnotatedBeatmapLevelCollectionsViewController_SetData(self, annotatedBeatmapLevelCollections, selectedItemIndex, hideIfOneOrNoPacks);
 }
 
 MAKE_HOOK_OFFSETLESS(LevelListTableCell_SetDataFromLevelAsync, void, Il2CppObject* self, GlobalNamespace::IPreviewBeatmapLevel* mainlevel, bool isFavorite)
 {
-    getLogger().info("LevelListTableCellSetDataFromLevelAsync called on level: %s", to_utf8(csstrtostr(mainlevel->get_songName())).c_str());
+    //getLogger().info("LevelListTableCellSetDataFromLevelAsync called on level: %s", to_utf8(csstrtostr(mainlevel->get_songName())).c_str());
     LevelListTableCell_SetDataFromLevelAsync(self, mainlevel, isFavorite);
 }
 
@@ -201,10 +189,10 @@ MAKE_HOOK_OFFSETLESS(LevelFilteringNavigationController_TabBarDidSwitch, void, G
     */
    
 
-   getLogger().info("TabBarDidSwitch Called!");
-   getLogger().info("tabbardata null: %d", self->tabBarDatas == nullptr);
-   getLogger().info("tabbarviewcontroller null: %d", self->tabBarViewController == nullptr);
-   getLogger().info("annotatedbeatmaplevelcollectionviewcontroller null: %d", self->annotatedBeatmapLevelCollectionsViewController == nullptr);
+   //getLogger().info("TabBarDidSwitch Called!");
+   //getLogger().info("tabbardata null: %d", self->tabBarDatas == nullptr);
+   //getLogger().info("tabbarviewcontroller null: %d", self->tabBarViewController == nullptr);
+   //getLogger().info("annotatedbeatmaplevelcollectionviewcontroller null: %d", self->annotatedBeatmapLevelCollectionsViewController == nullptr);
     LevelFilteringNavigationController_TabBarDidSwitch(self);
 }
 
@@ -217,30 +205,30 @@ MAKE_HOOK_OFFSETLESS(System_URI_CreateThis, void, System::Uri* self, Il2CppStrin
 
 MAKE_HOOK_OFFSETLESS(FileHelpers_GetEscapedURLForFilePath, Il2CppString*, Il2CppString* filePath)
 {
-    getLogger().info("GetEscapedURLforFilePath Called, string is %d", filePath==nullptr);
+    //getLogger().info("GetEscapedURLforFilePath Called, string is %d", filePath==nullptr);
     std::string file = "file:///";
 
     std::string path = to_utf8(csstrtostr(filePath));
-    getLogger().info("Getting escaped URL for %s", path.c_str());
+    //getLogger().info("Getting escaped URL for %s", path.c_str());
 
     std::string escapedString = path;//to_utf8(csstrtostr(UnityEngine::Networking::UnityWebRequest::EscapeURL(filePath)));//FileHelpers_GetEscapedURLForFilePath(filePath);
     
-    getLogger().info("escaped URI was: %s", (file + escapedString).c_str());
+    //getLogger().info("escaped URI was: %s", (file + escapedString).c_str());
 
     return il2cpp_utils::createcsstr(file + escapedString);
 }
 
 MAKE_HOOK_OFFSETLESS(LevelFilteringNavigationController_ReloadSongListIfNeeded, void, GlobalNamespace::LevelFilteringNavigationController* self)
 {
-    getLogger().info("ReloadSongListIfNeeded Called, this.distartloadingevent is null: %d", self->didStartLoadingEvent == nullptr);
-    getLogger().info("this.annotatedbeatmaplevelcollectionsviewcontroller is null: %d", self->annotatedBeatmapLevelCollectionsViewController == nullptr);
+    //getLogger().info("ReloadSongListIfNeeded Called, this.distartloadingevent is null: %d", self->didStartLoadingEvent == nullptr);
+    //getLogger().info("this.annotatedbeatmaplevelcollectionsviewcontroller is null: %d", self->annotatedBeatmapLevelCollectionsViewController == nullptr);
     LevelFilteringNavigationController_ReloadSongListIfNeeded(self);
 }
 
 MAKE_HOOK_OFFSETLESS(LevelFilteringNavigationController_SwitchWithReloadIfNeeded, void, GlobalNamespace::LevelFilteringNavigationController* self)
 {
-    getLogger().info("SwitchWithReload Called, this.distartloadingevent is null: %d", self->didStartLoadingEvent == nullptr);
-    getLogger().info("this.annotatedbeatmaplevelcollectionsviewcontroller is null: %d", self->annotatedBeatmapLevelCollectionsViewController == nullptr);
+    //getLogger().info("SwitchWithReload Called, this.distartloadingevent is null: %d", self->didStartLoadingEvent == nullptr);
+    //getLogger().info("this.annotatedbeatmaplevelcollectionsviewcontroller is null: %d", self->annotatedBeatmapLevelCollectionsViewController == nullptr);
     LevelFilteringNavigationController_SwitchWithReloadIfNeeded(self);
 }
 
@@ -376,7 +364,7 @@ MAKE_HOOK_OFFSETLESS(LevelFilteringNavigationController_UpdateCustomSongs, void,
     customPackCollection = tempCollection;
     hasupdated = true;
     */
-    getLogger().info("End of UpdateCustomSongs");
+    //getLogger().info("End of UpdateCustomSongs");
     LevelFilteringNavigationController_UpdateCustomSongs(self);
     
 }
@@ -384,10 +372,10 @@ MAKE_HOOK_OFFSETLESS(LevelFilteringNavigationController_UpdateCustomSongs, void,
 MAKE_HOOK_OFFSETLESS(AdditionalContentModel_GetLevelEntitlementStatusAsync, Il2CppObject*, GlobalNamespace::AdditionalContentModel* self, Il2CppString* levelID ,System::Threading::CancellationToken* token)
 {
     
-    getLogger().info("Trying to get status of %s", to_utf8(csstrtostr(levelID)).c_str());
+    //getLogger().info("Trying to get status of %s", to_utf8(csstrtostr(levelID)).c_str());
 
-    if (self->alwaysOwnedContentContainer->alwaysOwnedBeatmapLevelIds->Contains(levelID)) getLogger().info("This levelID was in the list!");
-    else getLogger().info("This levelID was not in the list!");
+    //if (self->alwaysOwnedContentContainer->alwaysOwnedBeatmapLevelIds->Contains(levelID)) getLogger().info("This levelID was in the list!");
+    //else getLogger().info("This levelID was not in the list!");
 
     return AdditionalContentModel_GetLevelEntitlementStatusAsync(self, levelID, token);
 }
@@ -476,7 +464,7 @@ MAKE_HOOK_OFFSETLESS(StandardLevelDetailView_RefreshContent, void, GlobalNamespa
 		{
 			return;
 		}
-        getLogger().info("audio clip is null: %d", self->level->get_beatmapLevelData()->get_audioClip() == nullptr);
+        //getLogger().info("audio clip is null: %d", self->level->get_beatmapLevelData()->get_audioClip() == nullptr);
         float songLength = (self->level->get_beatmapLevelData()->get_audioClip() == nullptr) ? 260.0f : self->level->get_beatmapLevelData()->get_audioClip()->get_length();
 		self->toggleBinder->Disable();
 		self->favoriteToggle->set_isOn(self->playerData->IsLevelUserFavorite(self->level));
@@ -517,7 +505,7 @@ MAKE_HOOK_OFFSETLESS(StandardLevelDetailView_RefreshContent, void, GlobalNamespa
 
 MAKE_HOOK_OFFSETLESS(LevelCollectionViewController_SongPlayerCrossfadeToLevelAsync, void, GlobalNamespace::LevelCollectionViewController* self, GlobalNamespace::IPreviewBeatmapLevel* level)
 {
-    getLogger().info("Song Crossfade called");
+    //getLogger().info("Song Crossfade called");
     LevelCollectionViewController_SongPlayerCrossfadeToLevelAsync(self, level);
 }
     /*
